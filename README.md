@@ -4,7 +4,7 @@
 
 ## 在线预览
 
-[https://github.com/biallo/react-practice-lab](https://github.com/biallo/react-practice-lab)
+[https://biallo.github.io/react-practice-lab/](https://biallo.github.io/react-practice-lab/)
 
 ## 运行
 
