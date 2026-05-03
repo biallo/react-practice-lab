@@ -95,6 +95,34 @@ function Counter() {
         '列出 effect 内部读取的响应式值，并让依赖数组与这些值一致。解释漏掉 title 会发生什么。'
     }
   ],
+  answer: {
+    code: `function useDocumentTitle(title) {
+  React.useEffect(() => {
+    const previousTitle = document.title;
+    document.title = title;
+
+    return () => {
+      document.title = previousTitle;
+    };
+  }, [title]);
+}
+
+function Counter() {
+  const [count, setCount] = React.useState(0);
+  useDocumentTitle(\`Count: \${count}\`);
+
+  return (
+    <button onClick={() => setCount((value) => value + 1)}>
+      Count: {count}
+    </button>
+  );
+}`,
+    notes: [
+      '递增使用函数式更新，避免依赖事件处理器闭包里的旧 count。',
+      'useDocumentTitle 复用的是副作用逻辑，不复用 UI。',
+      'effect 读取 title，因此依赖数组包含 title。'
+    ]
+  },
   checklist: [
     'useState 的 setter 会安排重新渲染，依赖旧状态时使用函数式更新。',
     'useEffect 用于同步外部系统，并通过清理函数撤销上一次同步。',

@@ -100,6 +100,39 @@ function Modal({ children }) {
         '不要把 Fiber 写成一个业务 API。用自己的话说明它是 React 内部协调架构，并指出它为哪些后续能力铺路。'
     }
   ],
+  answer: {
+    code: `class ErrorBoundary extends React.Component {
+  state = { error: null };
+
+  static getDerivedStateFromError(error) {
+    return { error };
+  }
+
+  componentDidCatch(error, info) {
+    reportError(error, info.componentStack);
+  }
+
+  render() {
+    if (this.state.error) {
+      return <p role="alert">这一块暂时无法显示。</p>;
+    }
+
+    return this.props.children;
+  }
+}
+
+function Modal({ children }) {
+  return ReactDOM.createPortal(
+    <div className="modal">{children}</div>,
+    document.getElementById('modal-root')
+  );
+}`,
+    notes: [
+      '错误边界负责捕获子树渲染错误，并渲染 fallback UI。',
+      'Portal 的 React 父子关系仍在当前组件树里，DOM 节点可以出现在 modal-root。',
+      'Fiber 是内部协调架构，不是业务组件中直接调用的 API。'
+    ]
+  },
   checklist: [
     'Fiber 被理解为内部协调架构，而不是业务组件 API。',
     '错误边界的捕获范围和不能捕获的场景清晰。',

@@ -93,6 +93,38 @@ class ProfileForm extends React.Component {
         '分别说明 theme 应该走 Context，focus 应该走 ref 的原因。不要把所有跨组件需求都塞进 Context，也不要用 ref 传递普通数据。'
     }
   ],
+  answer: {
+    code: `const ThemeContext = React.createContext('light');
+
+const TextInput = React.forwardRef(function TextInput(props, ref) {
+  return <input ref={ref} className="text-input" {...props} />;
+});
+
+class ProfileForm extends React.Component {
+  inputRef = React.createRef();
+
+  componentDidMount() {
+    this.inputRef.current.focus();
+  }
+
+  render() {
+    return (
+      <ThemeContext.Consumer>
+        {(theme) => (
+          <section data-theme={theme}>
+            <TextInput ref={this.inputRef} placeholder="Name" />
+          </section>
+        )}
+      </ThemeContext.Consumer>
+    );
+  }
+}`,
+    notes: [
+      'ThemeContext 负责跨层传递主题，不需要逐层传 props。',
+      'createRef 创建稳定 ref 对象，挂载后 current 指向 input。',
+      'forwardRef 让封装后的 TextInput 仍然可以暴露真实 input 给父组件。'
+    ]
+  },
   checklist: [
     'Context 的 Provider / Consumer 数据流清晰。',
     'createRef.current 在挂载、更新和卸载时的含义明确。',

@@ -104,6 +104,37 @@ function ChangeName({ updateName }) {
         '为评论发布或点赞写一个 useOptimistic 示例。写出成功路径和失败回滚策略，不只写“先加一条数据”。'
     }
   ],
+  answer: {
+    code: `function SubmitButton() {
+  const { pending } = useFormStatus();
+  return <button disabled={pending}>{pending ? 'Saving...' : 'Save'}</button>;
+}
+
+function ChangeName({ updateName }) {
+  const [message, submitAction, isPending] = useActionState(
+    async (previousMessage, formData) => {
+      const name = formData.get('name');
+      await updateName(name);
+      return 'Name updated';
+    },
+    ''
+  );
+
+  return (
+    <form action={submitAction}>
+      <input name="name" />
+      <SubmitButton />
+      {isPending && <p>Updating profile...</p>}
+      {message && <p>{message}</p>}
+    </form>
+  );
+}`,
+    notes: [
+      'useActionState 把 action 返回值保存为 UI 状态，同时给出 pending。',
+      'SubmitButton 通过 useFormStatus 读取最近父级 form 的提交状态。',
+      '乐观更新类练习还需要失败回滚或错误提示，不能只写成功路径。'
+    ]
+  },
   checklist: [
     'Actions 用于组织异步变更和提交生命周期。',
     'useActionState 适合从 action 返回值派生 UI 状态。',

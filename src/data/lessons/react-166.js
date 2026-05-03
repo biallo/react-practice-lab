@@ -89,6 +89,34 @@ function AccountPage({ user }) {
         '找一个纯展示函数组件，记录它的 props 是否稳定、渲染是否昂贵。只有在这两个条件至少满足一个时再加 memo，并说明原因。'
     }
   ],
+  answer: {
+    code: `const SettingsPanel = React.lazy(() => import('./SettingsPanel'));
+
+const UserBadge = React.memo(function UserBadge({ user }) {
+  return (
+    <section>
+      <strong>{user.name}</strong>
+      <span>{user.role}</span>
+    </section>
+  );
+});
+
+function AccountPage({ user }) {
+  return (
+    <>
+      <UserBadge user={user} />
+      <React.Suspense fallback={<p>正在加载设置面板...</p>}>
+        <SettingsPanel />
+      </React.Suspense>
+    </>
+  );
+}`,
+    notes: [
+      'SettingsPanel 是低频或较大的模块，适合用 React.lazy 延后加载。',
+      'Suspense 的 fallback 只覆盖它包住的懒加载子树。',
+      'React.memo 适合 props 稳定且渲染成本值得优化的展示组件。'
+    ]
+  },
   checklist: [
     'React.memo 的收益和限制清晰，避免无差别包裹所有组件。',
     'React.lazy 通过动态 import 改变模块加载时机。',

@@ -95,6 +95,34 @@ function ChatRoom({ roomId, theme }) {
         '用性能面板录制一次重交互，尝试指出耗时来自 React 渲染、提交阶段还是浏览器布局。不要只看总耗时。'
     }
   ],
+  answer: {
+    code: `function ProfileRoute({ isActive }) {
+  return (
+    <Activity mode={isActive ? 'visible' : 'hidden'}>
+      <ProfilePage />
+    </Activity>
+  );
+}
+
+function ChatRoom({ roomId, theme }) {
+  const onConnected = useEffectEvent(() => {
+    showNotification('Connected', theme);
+  });
+
+  useEffect(() => {
+    const connection = createConnection(roomId);
+    connection.on('connected', onConnected);
+    connection.connect();
+
+    return () => connection.disconnect();
+  }, [roomId]);
+}`,
+    notes: [
+      'Activity hidden 会保留子树状态，和直接卸载不同。',
+      'useEffectEvent 里的逻辑可以读取最新 theme，但不会让 theme 变化触发重连。',
+      '聊天室连接 effect 只依赖 roomId，因为重连边界是房间变化。'
+    ]
+  },
   checklist: [
     'Activity hidden 保留子树状态，和直接卸载不同。',
     'useEffectEvent 用于 effect 内的非响应式逻辑，避免不必要的 effect 重跑。',

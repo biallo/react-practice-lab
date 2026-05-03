@@ -105,6 +105,38 @@ function SearchPage({ allItems }) {
         '实现搜索输入：input value 直接 setQuery，昂贵的列表过滤放进 startTransition。说明为什么不能把 setQuery 放进 Transition。'
     }
   ],
+  answer: {
+    code: `import { createRoot } from 'react-dom/client';
+import { startTransition, useState } from 'react';
+
+createRoot(document.getElementById('root')).render(<App />);
+
+function SearchPage({ allItems }) {
+  const [query, setQuery] = useState('');
+  const [results, setResults] = useState(allItems);
+
+  function handleChange(event) {
+    const nextQuery = event.target.value;
+    setQuery(nextQuery);
+
+    startTransition(() => {
+      setResults(filterItems(allItems, nextQuery));
+    });
+  }
+
+  return (
+    <>
+      <input value={query} onChange={handleChange} />
+      <ResultList items={results} />
+    </>
+  );
+}`,
+    notes: [
+      'createRoot 是 React 18 客户端挂载入口；SSR 接管使用 hydrateRoot。',
+      'query 是紧急输入状态，不放进 startTransition。',
+      'results 是较重的派生 UI，可以作为非紧急更新处理。'
+    ]
+  },
   checklist: [
     'createRoot 和 hydrateRoot 的使用场景区分清楚。',
     '自动批处理减少重复渲染，但 state 更新仍不是当前闭包内的同步赋值。',

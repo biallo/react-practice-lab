@@ -89,6 +89,34 @@ function Toolbar() {
         '写一句话解释为什么 <>...</> 不能用于需要 key 的列表项，以及完整 Fragment 为什么可以。'
     }
   ],
+  answer: {
+    code: `function Glossary({ items }) {
+  return (
+    <dl>
+      {items.map((item) => (
+        <React.Fragment key={item.id}>
+          <dt>{item.term}</dt>
+          <dd>{item.description}</dd>
+        </React.Fragment>
+      ))}
+    </dl>
+  );
+}
+
+function Toolbar() {
+  return (
+    <>
+      <button>Save</button>
+      <button>Cancel</button>
+    </>
+  );
+}`,
+    notes: [
+      '列表里一组 dt/dd 需要 key，因此使用完整的 React.Fragment 写法。',
+      '<></> 适合不需要 key 的普通分组。',
+      'Fragment 不会生成额外 DOM 节点。'
+    ]
+  },
   checklist: [
     'Fragment 不会生成真实 DOM 节点。',
     '短语法适合无属性分组，完整写法适合需要 key 的分组。',

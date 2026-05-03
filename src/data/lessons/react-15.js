@@ -79,6 +79,24 @@ export const lesson = {
         '说明 SVG 支持属于 React 核心概念、JSX 编译问题，还是 react-dom 对浏览器平台的支持问题。写出你的判断依据。'
     }
   ],
+  answer: {
+    code: `function ReactLogoMark({ title = 'React SVG mark' }) {
+  return (
+    <svg viewBox="0 0 120 80" role="img" aria-labelledby="react-logo-title">
+      <title id="react-logo-title">{title}</title>
+      <ellipse cx="60" cy="40" rx="48" ry="16" fill="none" stroke="currentColor" />
+      <ellipse cx="60" cy="40" rx="48" ry="16" fill="none" stroke="currentColor" transform="rotate(60 60 40)" />
+      <ellipse cx="60" cy="40" rx="48" ry="16" fill="none" stroke="currentColor" transform="rotate(120 60 40)" />
+      <circle cx="60" cy="40" r="6" fill="currentColor" />
+    </svg>
+  );
+}`,
+    notes: [
+      'SVG 的 viewBox、stroke、fill、transform 等属性可以直接通过 JSX 表达。',
+      'React 15 的 SVG 支持属于 react-dom 对浏览器平台能力的覆盖。',
+      'DOM 输出更干净后，不应依赖 data-reactid 这类内部标记。'
+    ]
+  },
   checklist: [
     'React 15 的 DOM 输出变化可以和浏览器真实节点创建联系起来。',
     'data-reactid 属于早期内部实现标记，不是业务可依赖的 API。',

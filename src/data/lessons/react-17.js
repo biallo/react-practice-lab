@@ -83,6 +83,26 @@ function SearchBox() {
         '写一个 onChange，在 setTimeout 中读取 event.target.value。说明 React 17 之后为什么不再需要 event.persist()。'
     }
   ],
+  answer: {
+    code: `function Greeting({ name }) {
+  return <h1>Hello {name}</h1>;
+}
+
+function SearchBox() {
+  function handleChange(event) {
+    setTimeout(() => {
+      console.log(event.target.value);
+    }, 100);
+  }
+
+  return <input onChange={handleChange} />;
+}`,
+    notes: [
+      '新 JSX Transform 下，不需要仅仅为了 JSX 而 import React。',
+      'React 17 的事件监听从 document 移到 root container，更利于多版本共存。',
+      '事件池移除后，异步读取 SyntheticEvent 属性不再需要 event.persist()。'
+    ]
+  },
   checklist: [
     'React 17 的主要目标是渐进升级，而不是新增业务 API。',
     '事件委托从 document 移到 root container 的意义清晰。',

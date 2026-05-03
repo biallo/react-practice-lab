@@ -113,6 +113,33 @@ console.log(html);`,
         '用一句话总结：ProfileSummary 属于 react 的组件模型；浏览器挂载属于 react-dom；服务端字符串渲染属于 react-dom/server。'
     }
   ],
+  answer: {
+    code: `import React from 'react';
+import ReactDOM from 'react-dom';
+import ReactDOMServer from 'react-dom/server';
+
+function ProfileSummary({ user }) {
+  return (
+    <section className="profile-summary">
+      <h2>{user.name}</h2>
+      <p>{user.role}</p>
+    </section>
+  );
+}
+
+const element = (
+  <ProfileSummary user={{ name: 'Ada Lovelace', role: 'Engineer' }} />
+);
+
+ReactDOM.render(element, document.getElementById('root'));
+
+const html = ReactDOMServer.renderToString(element);`,
+    notes: [
+      'ProfileSummary 只接收 props 并返回 JSX，因此属于 react 的组件模型。',
+      '浏览器挂载使用 react-dom 的 ReactDOM.render。',
+      '服务端 HTML 字符串输出使用 react-dom/server 的 renderToString。'
+    ]
+  },
   checklist: [
     'react、react-dom、react-dom/server 三者的职责边界清晰。',
     'ReactDOM.render 属于浏览器 DOM 渲染器，而不是 React 核心包。',

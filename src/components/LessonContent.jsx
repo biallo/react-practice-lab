@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { FeatureList } from './FeatureList.jsx';
 
 function DetailList({ items }) {
@@ -221,6 +221,29 @@ function PracticeEditor({ draft, onDraftChange }) {
   );
 }
 
+function PracticeAnswer({ answer }) {
+  return (
+    <article className="panel wide answer-panel">
+      <div className="section-title">
+        <span>Answer</span>
+        <h2>参考答案</h2>
+      </div>
+      {answer.code && (
+        <pre className="code-block answer-code">
+          <code>{answer.code}</code>
+        </pre>
+      )}
+      {answer.notes && (
+        <ul className="answer-notes">
+          {answer.notes.map((note) => (
+            <li key={note}>{note}</li>
+          ))}
+        </ul>
+      )}
+    </article>
+  );
+}
+
 export function LessonContent({
   isDone,
   lesson,
@@ -229,6 +252,12 @@ export function LessonContent({
   practiceDraft,
   tab
 }) {
+  const [showAnswer, setShowAnswer] = useState(false);
+
+  useEffect(() => {
+    setShowAnswer(false);
+  }, [lesson.id]);
+
   if (tab === 'practice') {
     return (
       <section className="content-grid">
@@ -240,6 +269,12 @@ export function LessonContent({
           <PracticeContent practice={lesson.practice} />
         </article>
         <PracticeEditor draft={practiceDraft} onDraftChange={onPracticeDraftChange} />
+        <div className="practice-actions">
+          <button className="secondary" onClick={() => setShowAnswer((current) => !current)} type="button">
+            {showAnswer ? '隐藏答案' : '查看答案'}
+          </button>
+        </div>
+        {showAnswer && <PracticeAnswer answer={lesson.answer} />}
       </section>
     );
   }
