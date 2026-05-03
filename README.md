@@ -1,6 +1,6 @@
 # React Practice Lab
 
-一个针对复习 React.js 的学习项目。
+一个按版本时间线学习 React.js 的项目。
 
 ## 在线预览
 
