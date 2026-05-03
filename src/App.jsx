@@ -6,10 +6,8 @@ import { Sidebar } from './components/Sidebar.jsx';
 import { versionLessons } from './data/lessons.js';
 import {
   loadActiveLessonId,
-  loadPracticeDrafts,
   loadProgress,
   saveActiveLessonId,
-  savePracticeDrafts,
   saveProgress
 } from './utils/storage.js';
 
@@ -21,7 +19,6 @@ function App() {
   );
   const [activeTab, setActiveTab] = useState('explain');
   const [progress, setProgress] = useState(() => loadProgress(versionLessons));
-  const [practiceDrafts, setPracticeDrafts] = useState(() => loadPracticeDrafts(versionLessons));
 
   const activeIndex = Math.max(
     versionLessons.findIndex((lesson) => lesson.id === activeLessonId),
@@ -43,13 +40,6 @@ function App() {
     }));
   };
 
-  const updatePracticeDraft = (draft) => {
-    setPracticeDrafts((current) => ({
-      ...current,
-      [activeLesson.id]: draft
-    }));
-  };
-
   useEffect(() => {
     saveActiveLessonId(activeLessonId);
   }, [activeLessonId]);
@@ -57,10 +47,6 @@ function App() {
   useEffect(() => {
     saveProgress(progress);
   }, [progress]);
-
-  useEffect(() => {
-    savePracticeDrafts(practiceDrafts);
-  }, [practiceDrafts]);
 
   return (
     <main className="app-shell">
@@ -78,8 +64,6 @@ function App() {
           isDone={Boolean(progress[activeLesson.id])}
           lesson={activeLesson}
           onDone={markDone}
-          onPracticeDraftChange={updatePracticeDraft}
-          practiceDraft={practiceDrafts[activeLesson.id] ?? ''}
           tab={activeTab}
         />
       </section>

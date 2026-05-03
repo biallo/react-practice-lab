@@ -1,6 +1,5 @@
 export const STORAGE_KEYS = {
   activeLessonId: 'react-practice-lab:active-lesson-id',
-  practiceDrafts: 'react-practice-lab:practice-drafts',
   progress: 'react-practice-lab:progress'
 };
 
@@ -30,23 +29,6 @@ export const loadProgress = (lessons) => {
   }
 };
 
-export const loadPracticeDrafts = (lessons) => {
-  try {
-    const savedDrafts = JSON.parse(localStorage.getItem(STORAGE_KEYS.practiceDrafts) ?? '{}');
-    if (!savedDrafts || typeof savedDrafts !== 'object' || Array.isArray(savedDrafts)) {
-      return {};
-    }
-
-    return Object.fromEntries(
-      lessons
-        .filter((lesson) => typeof savedDrafts[lesson.id] === 'string')
-        .map((lesson) => [lesson.id, savedDrafts[lesson.id]])
-    );
-  } catch {
-    return {};
-  }
-};
-
 export const saveActiveLessonId = (lessonId) => {
   try {
     localStorage.setItem(STORAGE_KEYS.activeLessonId, lessonId);
@@ -58,14 +40,6 @@ export const saveActiveLessonId = (lessonId) => {
 export const saveProgress = (progress) => {
   try {
     localStorage.setItem(STORAGE_KEYS.progress, JSON.stringify(progress));
-  } catch {
-    // Ignore unavailable storage, such as private browsing restrictions.
-  }
-};
-
-export const savePracticeDrafts = (drafts) => {
-  try {
-    localStorage.setItem(STORAGE_KEYS.practiceDrafts, JSON.stringify(drafts));
   } catch {
     // Ignore unavailable storage, such as private browsing restrictions.
   }

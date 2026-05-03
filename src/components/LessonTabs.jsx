@@ -1,6 +1,5 @@
 export const lessonTabs = [
   { id: 'explain', label: '讲解' },
-  { id: 'practice', label: '练习' },
   { id: 'review', label: '复盘' }
 ];
 

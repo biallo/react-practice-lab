@@ -48,20 +48,6 @@
   background: #667085;
 }
 
-.secondary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 40px;
-  border: 1px solid #cfd8e3;
-  border-radius: 8px;
-  background: #ffffff;
-  color: #344054;
-  cursor: pointer;
-  font-weight: 850;
-  padding: 9px 13px;
-}
-
 .lesson-tabs {
   display: flex;
   flex-wrap: wrap;
@@ -199,115 +185,6 @@
 
 .detail-item p {
   margin: 0;
-}
-
-.practice-list {
-  display: grid;
-  gap: 12px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  counter-reset: practice-step;
-}
-
-.practice-list li {
-  position: relative;
-  display: grid;
-  gap: 8px;
-  border: 1px solid #e4eaf2;
-  border-radius: 8px;
-  background: #fbfcfe;
-  padding: 16px 16px 16px 54px;
-  counter-increment: practice-step;
-}
-
-.practice-list li::before {
-  position: absolute;
-  top: 16px;
-  left: 16px;
-  display: grid;
-  width: 26px;
-  height: 26px;
-  place-items: center;
-  border-radius: 8px;
-  background: #1b7f79;
-  color: #ffffff;
-  content: counter(practice-step);
-  font-size: 13px;
-  font-weight: 900;
-}
-
-.practice-list h3 {
-  margin: 0;
-  color: #18212f;
-  font-size: 16px;
-  line-height: 1.35;
-}
-
-.practice-list p {
-  margin: 0;
-}
-
-.practice-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 18px;
-}
-
-.practice-editor {
-  width: 100%;
-  min-height: 360px;
-  max-width: 100%;
-  overflow: auto;
-  border: 1px solid #263344;
-  border-radius: 8px;
-  outline: none;
-  background: #101828;
-  color: #edf4ff;
-  cursor: text;
-  padding: 16px;
-  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
-  font-size: 14px;
-  line-height: 1.65;
-  tab-size: 2;
-  white-space: pre-wrap;
-}
-
-.practice-editor:focus {
-  border-color: #51b7b0;
-  box-shadow: 0 0 0 3px rgba(27, 127, 121, 0.18);
-}
-
-.practice-editor:empty::before {
-  color: #98a2b3;
-  content: attr(data-placeholder);
-  pointer-events: none;
-}
-
-.answer-panel {
-  border-color: #a9d7c1;
-  background: #fbfffd;
-}
-
-.answer-code {
-  border-color: #1f7a4d;
-  background: #0f2f24;
-}
-
-.answer-notes {
-  display: grid;
-  gap: 10px;
-  margin: 16px 0 0;
-  padding: 0;
-  list-style: none;
-}
-
-.answer-notes li {
-  border-left: 4px solid #1b7f79;
-  color: #344054;
-  line-height: 1.6;
-  padding-left: 12px;
 }
 
 .code-block {
