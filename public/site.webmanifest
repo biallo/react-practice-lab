@@ -1,0 +1,20 @@
+{
+    "name": "React Practice Lab",
+    "short_name": "React Lab",
+    "description": "A React learning and practice lab.",
+    "icons": [
+        {
+            "src": "/android-chrome-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "/android-chrome-384x384.png",
+            "sizes": "384x384",
+            "type": "image/png"
+        }
+    ],
+    "theme_color": "#23272f",
+    "background_color": "#23272f",
+    "display": "standalone"
+}

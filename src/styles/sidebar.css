@@ -1,0 +1,207 @@
+.sidebar {
+  position: sticky;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  height: 100vh;
+  height: 100dvh;
+  padding: 24px;
+  overflow: hidden;
+  border-right: 1px solid #dce3ed;
+  background: #ffffff;
+}
+
+.brand {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+}
+
+.brand-mark {
+  display: grid;
+  width: 48px;
+  height: 48px;
+  place-items: center;
+  border-radius: 8px;
+  background: #133f5c;
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 900;
+}
+
+.brand p {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 850;
+}
+
+.brand span {
+  display: block;
+  margin-top: 4px;
+  color: #667085;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.progress-panel {
+  border: 1px solid #dce3ed;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.progress-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  color: #475467;
+  font-size: 14px;
+}
+
+.progress-row strong {
+  color: #18212f;
+}
+
+.progress-track {
+  height: 8px;
+  margin: 12px 0 10px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #edf1f6;
+}
+
+.progress-track div {
+  height: 100%;
+  border-radius: inherit;
+  background: #1b7f79;
+  transition: width 180ms ease;
+}
+
+.progress-panel p {
+  margin: 0;
+  color: #667085;
+  font-size: 13px;
+}
+
+.mobile-lesson-picker {
+  display: none;
+}
+
+.lesson-list {
+  display: grid;
+  flex: 1;
+  gap: 8px;
+  min-height: 0;
+  margin-right: -14px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-right: 14px;
+  scrollbar-color: rgba(102, 112, 133, 0.45) transparent;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+}
+
+.lesson-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.lesson-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.lesson-list::-webkit-scrollbar-thumb {
+  border: 2px solid #ffffff;
+  border-radius: 999px;
+  background: rgba(102, 112, 133, 0.42);
+}
+
+.lesson-item {
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  width: 100%;
+  min-height: 74px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: #344054;
+  cursor: pointer;
+  padding: 10px;
+  text-align: left;
+  transition: background 0.16s ease, border-color 0.16s ease;
+}
+
+.lesson-item:hover {
+  background: #f5f7fb;
+}
+
+.lesson-item.active {
+  border-color: #96c9c5;
+  background: #edf8f7;
+  color: #153f3c;
+}
+
+.lesson-number {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  border-radius: 8px;
+  background: #eef2f6;
+  color: #475467;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.lesson-item.active .lesson-number {
+  background: #1b7f79;
+  color: #ffffff;
+}
+
+.lesson-copy {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.lesson-copy strong,
+.lesson-copy small,
+.lesson-copy span {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lesson-copy strong {
+  color: inherit;
+  font-size: 14px;
+}
+
+.lesson-copy small {
+  color: #667085;
+  font-size: 12px;
+}
+
+.lesson-copy span {
+  color: #344054;
+  font-size: 12px;
+}
+
+.lesson-status {
+  border-radius: 999px;
+  background: #edf1f6;
+  color: #667085;
+  font-size: 12px;
+  font-weight: 850;
+  padding: 3px 8px;
+  white-space: nowrap;
+}
+
+.lesson-item.completed .lesson-status {
+  background: rgba(27, 127, 121, 0.1);
+  color: #1b7f79;
+}
