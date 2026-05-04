@@ -30,19 +30,46 @@ export const lesson = {
   ],
   "deepDive": [
     {
-      "title": "1. 为什么 innerHTML 到 createElement 是重要变化",
-      "body": "innerHTML 更像一次性把字符串交给浏览器解析；createElement 则逐个创建真实节点。React 选择后者后，可以更精确地建立 React 内部实例与 DOM 节点的关系，减少依赖字符串输出格式的脆弱性。"
+      "title": "宿主环境",
+      "items": [
+        {
+          "title": "ReactDOM 的职责",
+          "body": "React 的组件模型最终要落到宿主环境。Web 的宿主环境是浏览器 DOM，ReactDOM 必须处理节点创建、属性设置、事件绑定和浏览器差异。"
+        },
+        {
+          "title": "创建节点的方式",
+          "body": "innerHTML 更像一次性把字符串交给浏览器解析；createElement 则逐个创建真实节点。React 15 的变化让内部实例和 DOM 节点关系更精确。"
+        }
+      ]
     },
     {
-      "title": "2. DOM 越干净，组件越容易组合",
-      "body": "多余的内部属性不会直接破坏 UI，但会增加调试噪声，也可能影响选择器、快照测试和与非 React 代码协作。React 15 减少内部标记，是让渲染结果更接近平台语义的一步。"
+      "title": "输出质量",
+      "items": [
+        {
+          "title": "DOM 输出可观察性",
+          "body": "减少内部属性后，开发者看到的 DOM 更接近组件表达的结构。调试、快照测试、CSS 选择器都更少依赖 React 内部实现细节。"
+        },
+        {
+          "title": "SVG 组件化",
+          "body": "图标、图表和可视化通常依赖 SVG。React 15 的 SVG 支持让这些 UI 能留在 JSX 和组件系统里，而不是退回字符串拼接或手动 DOM 操作。"
+        }
+      ]
     },
     {
-      "title": "3. SVG 支持体现的是“平台覆盖面”",
-      "body": "React 的 JSX 并不只描述 div、span、button，也可以描述 SVG。图标和图表常需要大量 SVG 属性，如果 React 支持不完整，开发者就会被迫逃离组件模型。React 15 让这些 UI 更自然地留在组件体系中。"
+      "title": "版本判断",
+      "items": [
+        {
+          "title": "主版本意识",
+          "body": "从 0.x 进入 15 说明 React 开始更明确地使用主版本表达破坏性变更、弃用清理和迁移边界。学习版本线时要关注这些迁移信号。"
+        },
+        {
+          "title": "不要依赖内部标记",
+          "body": "data-reactid 这类内部输出不是业务 API。即使曾经能在 DOM 中看到，也不应该被测试、样式或业务逻辑依赖。"
+        }
+      ]
     }
   ],
-  "code": "function ReactLogoMark({ title = 'React 15 SVG support' }) {\n  return (\n    <svg viewBox=\"0 0 120 80\" role=\"img\" aria-labelledby=\"react15-title\">\n      <title id=\"react15-title\">{title}</title>\n      <ellipse cx=\"60\" cy=\"40\" rx=\"48\" ry=\"16\" fill=\"none\" stroke=\"currentColor\" />\n      <ellipse cx=\"60\" cy=\"40\" rx=\"48\" ry=\"16\" fill=\"none\" stroke=\"currentColor\" transform=\"rotate(60 60 40)\" />\n      <ellipse cx=\"60\" cy=\"40\" rx=\"48\" ry=\"16\" fill=\"none\" stroke=\"currentColor\" transform=\"rotate(120 60 40)\" />\n      <circle cx=\"60\" cy=\"40\" r=\"6\" fill=\"currentColor\" />\n    </svg>\n  );\n}",
+  "code": "import React from 'react';\nimport ReactDOM from 'react-dom';\n\nfunction ReactLogoMark({ size = 64 }) {\n  // React 15 改进了 SVG 支持，很多 SVG 属性可以像普通 JSX 属性一样声明。\n  return (\n    <svg width={size} height={size} viewBox=\"0 0 64 64\" role=\"img\">\n      <title>React mark</title>\n      <circle cx=\"32\" cy=\"32\" r=\"6\" fill=\"currentColor\" />\n      <ellipse cx=\"32\" cy=\"32\" rx=\"28\" ry=\"10\" fill=\"none\" stroke=\"currentColor\" />\n      <ellipse cx=\"32\" cy=\"32\" rx=\"28\" ry=\"10\" fill=\"none\" stroke=\"currentColor\" transform=\"rotate(60 32 32)\" />\n      <ellipse cx=\"32\" cy=\"32\" rx=\"28\" ry=\"10\" fill=\"none\" stroke=\"currentColor\" transform=\"rotate(120 32 32)\" />\n    </svg>\n  );\n}\n\nconst root = document.getElementById('root') || document.createElement('div');\n\n// ReactDOM.render 内部会通过 DOM API 创建和更新节点，例如 document.createElement。\nReactDOM.render(<ReactLogoMark />, root);\n\n// React 15 不再依赖 data-reactid 作为客户端渲染的主要标记。\n// 不要把 data-reactid 当成业务选择器，它属于旧版实现细节。\nconst shouldAvoid = '[data-reactid]';\n\n// React 15 之后版本号遵循 semver：15.1.0 是小版本，15.1.1 是补丁版本。",
   "checklist": [
     "React 15 的 DOM 输出变化可以和浏览器真实节点创建联系起来。",
     "data-reactid 属于早期内部实现标记，不是业务可依赖的 API。",

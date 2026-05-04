@@ -35,19 +35,46 @@ export const lesson = {
   ],
   "deepDive": [
     {
-      "title": "1. 依赖数组不是优化开关",
-      "body": "依赖数组描述 effect 读取了哪些响应式值。漏依赖通常会制造 stale closure；乱加依赖可能导致重复订阅或无限循环。正确做法是先写出 effect 的同步目标，再让依赖反映真实读取。"
+      "title": "响应式模型",
+      "items": [
+        {
+          "title": "响应式值",
+          "body": "组件内的 props、state 和直接声明的变量都会随渲染变化。effect、memo、callback 读取这些值时，依赖关系必须反映真实读取。"
+        },
+        {
+          "title": "状态更新模型",
+          "body": "setter 安排下一次渲染，不会修改当前闭包里的值。依赖旧状态时使用函数式更新，可以避免连续更新和异步回调中的旧值问题。"
+        }
+      ]
     },
     {
-      "title": "2. effect 不是“组件加载时执行代码”的容器",
-      "body": "许多逻辑不需要 effect：从 props 派生值可以直接计算，事件导致的请求可以放在事件处理器里。effect 适合和外部系统同步，而不是替代所有生命周期思维。"
+      "title": "副作用边界",
+      "items": [
+        {
+          "title": "Effect 的职责",
+          "body": "useEffect 用于同步外部系统，不是所有计算都要放进去。能在渲染期间直接计算的值，不应该绕到 effect 里再 setState。"
+        },
+        {
+          "title": "依赖数组",
+          "body": "依赖数组描述 effect 读取了哪些响应式值。漏依赖会制造旧闭包，乱加依赖可能导致重复订阅或循环更新。"
+        }
+      ]
     },
     {
-      "title": "3. 自定义 Hook 让逻辑按领域命名",
-      "body": "useOnlineStatus、useDocumentTitle、useDebouncedValue 这种命名能把组件从细节中解放出来。调用方关心领域状态，Hook 内部负责订阅、清理和依赖管理。"
+      "title": "逻辑复用",
+      "items": [
+        {
+          "title": "自定义 Hook 抽象",
+          "body": "自定义 Hook 应该命名业务意图，比如 useOnlineStatus 或 useDebouncedValue。它隐藏订阅、清理和状态组合细节，而不是简单搬运代码。"
+        },
+        {
+          "title": "复用状态逻辑",
+          "body": "自定义 Hook 复用的是状态和副作用逻辑，不是 DOM 结构。UI 复用仍然应该通过组件完成。"
+        }
+      ]
     }
   ],
-  "code": "function useDocumentTitle(title) {\n  React.useEffect(() => {\n    const previousTitle = document.title;\n    document.title = title;\n\n    return () => {\n      document.title = previousTitle;\n    };\n  }, [title]);\n}\n\nfunction Counter() {\n  const [count, setCount] = React.useState(0);\n  useDocumentTitle(`Count: ${count}`);\n\n  return (\n    <button onClick={() => setCount((value) => value + 1)}>\n      Count: {count}\n    </button>\n  );\n}",
+  "code": "import React, { useContext, useEffect, useReducer, useState } from 'react';\n\nconst AuthContext = React.createContext(null);\n\nfunction cartReducer(state, action) {\n  // useReducer 适合把多分支状态变化集中到一个纯函数里。\n  switch (action.type) {\n    case 'add':\n      return [...state, action.item];\n    case 'remove':\n      return state.filter((item) => item.id !== action.id);\n    default:\n      return state;\n  }\n}\n\nfunction useDocumentTitle(title) {\n  // 自定义 Hook 通过组合内置 Hook 复用状态逻辑，而不是复用 UI。\n  useEffect(() => {\n    document.title = title;\n  }, [title]);\n}\n\nfunction CartButton({ product }) {\n  const user = useContext(AuthContext);\n  const [items, dispatch] = useReducer(cartReducer, []);\n  const [isOpen, setIsOpen] = useState(false);\n\n  useDocumentTitle(items.length + ' items');\n\n  return (\n    <button\n      disabled={!user}\n      onClick={() => {\n        // useState 管理局部 UI 状态，useReducer 管理结构化业务变化。\n        setIsOpen(true);\n        dispatch({ type: 'add', item: product });\n      }}\n    >\n      {isOpen ? 'Added' : 'Add to cart'}\n    </button>\n  );\n}",
   "checklist": [
     "useState 的 setter 会安排重新渲染，依赖旧状态时使用函数式更新。",
     "useEffect 用于同步外部系统，并通过清理函数撤销上一次同步。",

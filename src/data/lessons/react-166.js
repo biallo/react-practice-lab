@@ -30,19 +30,46 @@ export const lesson = {
   ],
   "deepDive": [
     {
-      "title": "1. memo 优化的是重新渲染，不是首次渲染",
-      "body": "React.memo 只有在父组件更新导致子组件可能重渲染时才发挥作用。首次渲染仍然会执行。它也不能阻止内部 state 或 context 变化导致的渲染。"
+      "title": "性能判断",
+      "items": [
+        {
+          "title": "渲染成本",
+          "body": "性能优化要先判断成本来源：组件自身渲染是否昂贵、props 是否稳定、父组件是否频繁更新。memo 只解决其中一部分问题。"
+        },
+        {
+          "title": "优化克制",
+          "body": "memo、lazy、Suspense 都不是默认模板。它们需要基于用户路径、包体体积、渲染频率和交互体验来判断是否值得使用。"
+        }
+      ]
     },
     {
-      "title": "2. lazy 优化的是加载时机",
-      "body": "把很少访问的设置页、图表页、管理后台模块延后下载，可以降低首屏 JavaScript 体积。但如果拆得太碎，网络请求和 loading 状态也会变多。"
+      "title": "加载模型",
+      "items": [
+        {
+          "title": "包体拆分",
+          "body": "lazy 适合低频页面、大组件和重依赖模块。它优化的是加载时机，不会让组件本身渲染更快。"
+        },
+        {
+          "title": "加载边界",
+          "body": "Suspense 边界决定 fallback 覆盖范围。边界放得太外，用户看到大面积 loading；边界放得太碎，界面可能频繁闪动。"
+        }
+      ]
     },
     {
-      "title": "3. Suspense 是声明加载边界",
-      "body": "Suspense 不是加载动画组件，而是边界。边界内某个 lazy 组件还没准备好时，最近的 Suspense fallback 会接管显示。边界放得太大，用户看到的 loading 范围也会变大。"
+      "title": "使用限制",
+      "items": [
+        {
+          "title": "memo 的限制",
+          "body": "memo 只比较 props，不能阻止组件内部 state 或 context 变化导致的渲染，也不能优化首次渲染。"
+        },
+        {
+          "title": "Suspense 的阶段性能力",
+          "body": "16.6 中 Suspense 稳定支持的主场景是 React.lazy 代码分割，不应把后来的数据获取 Suspense 经验直接套回这个版本。"
+        }
+      ]
     }
   ],
-  "code": "const SettingsPanel = React.lazy(() => import('./SettingsPanel'));\n\nconst UserBadge = React.memo(function UserBadge({ user }) {\n  return (\n    <section>\n      <strong>{user.name}</strong>\n      <span>{user.role}</span>\n    </section>\n  );\n});\n\nfunction AccountPage({ user }) {\n  return (\n    <>\n      <UserBadge user={user} />\n      <React.Suspense fallback={<p>正在加载设置面板...</p>}>\n        <SettingsPanel />\n      </React.Suspense>\n    </>\n  );\n}",
+  "code": "import React from 'react';\n\nconst LocaleContext = React.createContext('en');\n\nconst Price = React.memo(function Price({ amount }) {\n  // React.memo 会在 props 未变化时跳过函数组件的重复渲染。\n  return <strong>{amount.toFixed(2)} USD</strong>;\n});\n\nconst ProductDetails = React.lazy(() => import('./ProductDetails'));\n\nclass LocaleBadge extends React.Component {\n  static contextType = LocaleContext;\n\n  render() {\n    // static contextType 让 class 组件用 this.context 读取单个 Context。\n    return <span>{this.context.toUpperCase()}</span>;\n  }\n}\n\nfunction ProductPage({ product }) {\n  return (\n    <LocaleContext.Provider value=\"zh-CN\">\n      <Price amount={product.price} />\n      <LocaleBadge />\n      <React.Suspense fallback={<p>Loading details...</p>}>\n        {/* React.lazy 配合 Suspense，把组件代码分割到需要时再加载。 */}\n        <ProductDetails id={product.id} />\n      </React.Suspense>\n    </LocaleContext.Provider>\n  );\n}",
   "checklist": [
     "React.memo 的收益和限制清晰，避免无差别包裹所有组件。",
     "React.lazy 通过动态 import 改变模块加载时机。",

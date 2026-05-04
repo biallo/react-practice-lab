@@ -30,19 +30,46 @@ export const lesson = {
   ],
   "deepDive": [
     {
-      "title": "1. “没有新特性”也是产品决策",
-      "body": "框架升级不仅要提供新能力，还要让已有应用能安全到达新版本。React 17 把重点放在升级路径上，为 React 18 的并发能力入口做准备。"
+      "title": "升级策略",
+      "items": [
+        {
+          "title": "渐进迁移",
+          "body": "大项目通常无法一次升级所有页面。React 17 让局部 React 树升级更现实，可以先迁移低风险区域，再逐步扩大范围。"
+        },
+        {
+          "title": "兼容性思维",
+          "body": "React 17 的课程重点是识别升级风险：事件传播、第三方库、测试工具、老 JSX 配置、异步读取事件对象等。"
+        }
+      ]
     },
     {
-      "title": "2. 事件委托位置影响多版本共存",
-      "body": "如果所有 React 根都把事件挂到 document，多版本混用时事件系统容易互相影响。挂到 root 容器后，每个根更像一个独立岛屿。"
+      "title": "事件系统",
+      "items": [
+        {
+          "title": "事件委托边界",
+          "body": "事件从 document 委托改到 root container 后，不同 React 根的事件处理更隔离。这对微前端、多版本嵌套和渐进升级很关键。"
+        },
+        {
+          "title": "事件池移除",
+          "body": "SyntheticEvent 不再复用后，异步读取事件属性更自然，旧代码里为了异步读取而调用 event.persist() 的需求消失。"
+        }
+      ]
     },
     {
-      "title": "3. JSX Transform 改的是编译输出",
-      "body": "新 JSX Transform 不代表 React 消失了，也不代表 JSX 变成浏览器原生语法。它只是让编译器改为从 react/jsx-runtime 生成 element。"
+      "title": "编译变化",
+      "items": [
+        {
+          "title": "JSX Transform",
+          "body": "新 JSX Transform 是编译输出变化，不是浏览器原生支持 JSX。构建工具会引入 react/jsx-runtime，开发者不必为 JSX 手动 import React。"
+        },
+        {
+          "title": "React 仍然存在",
+          "body": "不用手动 import React 不代表 React runtime 不参与渲染。JSX 仍然会被编译成对 React runtime 的调用。"
+        }
+      ]
     }
   ],
-  "code": "// 新 JSX Transform 下，组件文件可以不因为 JSX 而显式 import React。\nfunction Greeting({ name }) {\n  return <h1>Hello {name}</h1>;\n}\n\nfunction SearchBox() {\n  function handleChange(event) {\n    setTimeout(() => {\n      // React 17 后不需要 event.persist() 也能读取事件属性。\n      console.log(event.target.value);\n    }, 100);\n  }\n\n  return <input onChange={handleChange} />;\n}",
+  "code": "import { jsx as _jsx } from 'react/jsx-runtime';\nimport React from 'react';\nimport ReactDOM from 'react-dom';\n\nfunction Button() {\n  return <button onClick={(event) => console.log(event.target.textContent)}>Save</button>;\n}\n\n// 新 JSX Transform 会把 JSX 编译为 jsx-runtime 调用，因此文件里不再必须为了 JSX 引入 React。\nconst compiled = _jsx('button', { children: 'Save' });\n\nconst rootNode = document.getElementById('root');\nReactDOM.render(<Button />, rootNode);\n\n// React 17 把事件委托从 document 调整到 root 容器，便于多版本 React 渐进升级共存。\nrootNode.addEventListener('click', () => {\n  console.log('Native listener on the same root container');\n});\n\nfunction InputLogger() {\n  return (\n    <input\n      onChange={(event) => {\n        // SyntheticEvent 不再做事件池复用，异步读取 event.target 也不会失效。\n        setTimeout(() => console.log(event.target.value), 100);\n        // event.persist() 在 React 17 中保留兼容，但通常已经不需要。\n      }}\n    />\n  );\n}",
   "checklist": [
     "React 17 的主要目标是渐进升级，而不是新增业务 API。",
     "事件委托从 document 移到 root container 的意义清晰。",

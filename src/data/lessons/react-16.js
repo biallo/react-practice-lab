@@ -35,19 +35,46 @@ export const lesson = {
   ],
   "deepDive": [
     {
-      "title": "1. Fiber 解决的是“工作如何被组织”",
-      "body": "组件树变大后，一次同步渲染可能阻塞主线程。Fiber 的意义不是某个公开 API，而是让 React 内部可以把更新拆成工作单元。后来的 startTransition、Suspense、并发渲染都依赖这种可调度的工作模型。"
+      "title": "架构模型",
+      "items": [
+        {
+          "title": "协调器思维",
+          "body": "React 的核心工作不是直接改 DOM，而是协调旧树和新树之间的差异。Fiber 改变了这项工作被拆分、保存和调度的方式。"
+        },
+        {
+          "title": "Fiber 的位置",
+          "body": "Fiber 是内部协调架构，不是业务 API。它让 React 有机会暂停、恢复、丢弃或重新安排渲染工作，为后续并发能力铺路。"
+        }
+      ]
     },
     {
-      "title": "2. 错误边界是 UI 层的 try/catch",
-      "body": "JavaScript try/catch 捕获命令式代码块里的异常；错误边界捕获 React 渲染子树里的异常。它的价值是缩小故障范围：评论区坏了不必让整个页面白屏，局部 fallback 可以给用户继续操作的机会。"
+      "title": "稳定性",
+      "items": [
+        {
+          "title": "故障隔离",
+          "body": "错误边界让错误控制在某个 UI 子树内。它适合保护评论区、图表、第三方组件等容易失败但不应拖垮整个页面的区域。"
+        },
+        {
+          "title": "错误边界的范围",
+          "body": "错误边界捕获渲染、生命周期和构造阶段的子树错误，不负责捕获事件处理器、异步回调或自身内部错误。"
+        }
+      ]
     },
     {
-      "title": "3. Portal 分离 React 父子关系和 DOM 位置",
-      "body": "Portal 内的事件仍会按照 React 树向上冒泡，而不是只按 DOM 位置理解。这一点很关键：Modal 可以渲染到 body 下，但逻辑上仍属于打开它的页面组件。"
+      "title": "结构表达",
+      "items": [
+        {
+          "title": "视觉层和逻辑层分离",
+          "body": "Portal 让弹窗视觉上出现在 body 或 overlay root 下，但逻辑上仍属于打开它的 React 父组件。事件和上下文仍按 React 树工作。"
+        },
+        {
+          "title": "返回值模型扩展",
+          "body": "组件返回数组、字符串等类型，说明 React 组件不再被单一 DOM 包裹节点限制。这为 Fragment 和更少冗余 DOM 的组件结构铺路。"
+        }
+      ]
     }
   ],
-  "code": "class ErrorBoundary extends React.Component {\n  state = { error: null };\n\n  static getDerivedStateFromError(error) {\n    return { error };\n  }\n\n  componentDidCatch(error, info) {\n    reportError(error, info.componentStack);\n  }\n\n  render() {\n    if (this.state.error) {\n      return <p role=\"alert\">这一块暂时无法显示。</p>;\n    }\n\n    return this.props.children;\n  }\n}\n\nfunction Modal({ children }) {\n  return ReactDOM.createPortal(\n    <div className=\"modal\">{children}</div>,\n    document.getElementById('modal-root')\n  );\n}",
+  "code": "import React from 'react';\nimport ReactDOM from 'react-dom';\nimport { renderToString } from 'react-dom/server';\n\nclass ErrorBoundary extends React.Component {\n  state = { hasError: false };\n\n  static getDerivedStateFromError(error) {\n    // 捕获子树渲染阶段的错误，并切换到降级 UI。\n    return { hasError: true };\n  }\n\n  componentDidCatch(error, info) {\n    // componentDidCatch 适合记录错误与组件栈，避免整个应用白屏。\n    reportError(error, info.componentStack);\n  }\n\n  render() {\n    return this.state.hasError ? <p>Something went wrong.</p> : this.props.children;\n  }\n}\n\nfunction Toolbar() {\n  // React 16 支持返回数组，列表项需要稳定的 key。\n  return [\n    <button key=\"save\">Save</button>,\n    <button key=\"preview\">Preview</button>,\n  ];\n}\n\nfunction StatusText({ ready }) {\n  // React 16 还支持直接返回字符串或 null，让小组件更轻。\n  return ready ? 'Ready' : null;\n}\n\nfunction Modal({ children }) {\n  // Portal 把 React 子树渲染到当前 DOM 层级之外，常用于弹窗和浮层。\n  return ReactDOM.createPortal(children, document.getElementById('modal-root'));\n}\n\nconst app = (\n  <ErrorBoundary>\n    <Toolbar />\n    <StatusText ready />\n    <Modal>Saved</Modal>\n  </ErrorBoundary>\n);\n\n// Fiber 是 React 16 的新协调器；使用方式不变，但调度、错误恢复和增量渲染能力来自这里。\nReactDOM.render(app, document.getElementById('root'));\n\n// React 16 的服务端渲染器可以输出更干净的 HTML，并配合客户端 hydrate。\nconst html = renderToString(app);",
   "checklist": [
     "Fiber 被理解为内部协调架构，而不是业务组件 API。",
     "错误边界的捕获范围和不能捕获的场景清晰。",

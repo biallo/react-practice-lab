@@ -40,19 +40,46 @@ export const lesson = {
   ],
   "deepDive": [
     {
-      "title": "1. 并发渲染不等于多线程",
-      "body": "React 仍在 JavaScript 主线程上运行。并发的意思是 React 可以准备多个 UI 版本、暂停低优先级工作、优先处理紧急更新，并在合适时机提交结果。"
+      "title": "并发模型",
+      "items": [
+        {
+          "title": "并发不是并行",
+          "body": "React 并发渲染仍运行在 JavaScript 主线程。它的核心是工作可以被准备、暂停、丢弃和重试，而不是开多个线程同时改 DOM。"
+        },
+        {
+          "title": "提交阶段",
+          "body": "React 可以并发准备渲染结果，但真正提交到 DOM 的阶段仍然需要保持一致性。理解 render 阶段和 commit 阶段，有助于判断副作用放在哪里。"
+        }
+      ]
     },
     {
-      "title": "2. Transition 是交互优先级工具",
-      "body": "搜索框输入和搜索结果过滤常同时发生。输入 value 必须立即更新；结果列表可以晚一点。startTransition 让 React 在两者竞争时优先保证输入响应。"
+      "title": "交互优先级",
+      "items": [
+        {
+          "title": "优先级建模",
+          "body": "输入、点击反馈等属于紧急更新；搜索结果、路由内容、图表过滤等可以是非紧急更新。startTransition 是把这种业务优先级告诉 React。"
+        },
+        {
+          "title": "自动批处理",
+          "body": "React 18 会在更多异步场景合并多次状态更新，减少重复渲染。它提升效率，但不改变当前闭包里 state 的值。"
+        }
+      ]
     },
     {
-      "title": "3. SSR 从“生成完整 HTML”走向“分块交付”",
-      "body": "传统 SSR 容易被慢数据阻塞。React 18 的流式 SSR 可以先把框架和已准备好的内容发给浏览器，再通过 Suspense 边界填充慢内容。"
+      "title": "服务端和外部状态",
+      "items": [
+        {
+          "title": "SSR 与 Suspense",
+          "body": "流式 SSR 的价值来自 Suspense 边界：服务端可以先发已准备好的 shell，慢数据对应的边界稍后补齐。框架能力大多建立在这个模型上。"
+        },
+        {
+          "title": "外部 store 安全",
+          "body": "并发渲染下外部 store 需要避免 tearing。useSyncExternalStore 给状态库提供一致订阅协议，是库作者必须理解的 API。"
+        }
+      ]
     }
   ],
-  "code": "import { createRoot } from 'react-dom/client';\nimport { startTransition, useState } from 'react';\n\ncreateRoot(document.getElementById('root')).render(<App />);\n\nfunction SearchPage({ allItems }) {\n  const [query, setQuery] = useState('');\n  const [results, setResults] = useState(allItems);\n\n  function handleChange(event) {\n    const nextQuery = event.target.value;\n    setQuery(nextQuery);\n\n    startTransition(() => {\n      setResults(filterItems(allItems, nextQuery));\n    });\n  }\n\n  return (\n    <>\n      <input value={query} onChange={handleChange} />\n      <ResultList items={results} />\n    </>\n  );\n}",
+  "code": "import React, {\n  startTransition,\n  useDeferredValue,\n  useId,\n  useInsertionEffect,\n  useState,\n  useSyncExternalStore,\n  useTransition,\n} from 'react';\nimport { createRoot, hydrateRoot } from 'react-dom/client';\nimport { renderToPipeableStream, renderToReadableStream } from 'react-dom/server';\n\nfunction SearchPage({ initialResults }) {\n  const [query, setQuery] = useState('');\n  const [results, setResults] = useState(initialResults);\n  const [isPending, startUiTransition] = useTransition();\n  const deferredQuery = useDeferredValue(query);\n  const inputId = useId();\n\n  const online = useSyncExternalStore(\n    (notify) => {\n      window.addEventListener('online', notify);\n      window.addEventListener('offline', notify);\n      return () => {\n        window.removeEventListener('online', notify);\n        window.removeEventListener('offline', notify);\n      };\n    },\n    () => navigator.onLine\n  );\n\n  useInsertionEffect(() => {\n    // CSS-in-JS 库可在布局读取前插入样式，普通业务副作用仍应使用 useEffect。\n    document.documentElement.dataset.react18Styles = 'ready';\n  }, []);\n\n  function handleChange(event) {\n    const nextQuery = event.target.value;\n    setQuery(nextQuery);\n\n    // startTransition 标记低优先级更新，输入框响应不会被大列表渲染阻塞。\n    startTransition(() => {\n      setResults(filterProducts(nextQuery));\n    });\n\n    // useTransition 提供 isPending，便于展示低优先级更新的等待状态。\n    startUiTransition(() => {\n      logSearchIntent(nextQuery);\n    });\n  }\n\n  return (\n    <section>\n      <label htmlFor={inputId}>Search</label>\n      <input id={inputId} value={query} onChange={handleChange} />\n      {!online && <p>Offline</p>}\n      {isPending && <p>Updating...</p>}\n      <ProductList query={deferredQuery} items={results} />\n    </section>\n  );\n}\n\n// createRoot 启用 React 18 的并发渲染入口和自动批处理。\ncreateRoot(document.getElementById('root')).render(<SearchPage initialResults={[]} />);\n\n// hydrateRoot 用于接管服务端输出的 HTML。\nhydrateRoot(document.getElementById('ssr-root'), <SearchPage initialResults={window.__RESULTS__} />);\n\n// Node.js 服务端可用 renderToPipeableStream 做流式 SSR。\nconst nodeStream = renderToPipeableStream(<SearchPage initialResults={[]} />, {\n  onShellReady() {\n    // response 可以尽早写出 shell，Suspense 内容随后补齐。\n  },\n});\n\n// Web Streams 环境可用 renderToReadableStream。\nconst webStreamPromise = renderToReadableStream(<SearchPage initialResults={[]} />);",
   "checklist": [
     "createRoot 和 hydrateRoot 的使用场景区分清楚。",
     "自动批处理减少重复渲染，但 state 更新仍不是当前闭包内的同步赋值。",

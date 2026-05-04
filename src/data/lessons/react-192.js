@@ -35,19 +35,50 @@ export const lesson = {
   ],
   "deepDive": [
     {
-      "title": "1. Activity 和条件渲染的区别",
-      "body": "条件渲染 false 通常会卸载子树，内部 state 消失；Activity hidden 则保留子树状态，让再次显示时可以恢复。它适合“暂时不可见但不该丢失状态”的 UI。"
+      "title": "可见性和状态",
+      "items": [
+        {
+          "title": "隐藏和卸载",
+          "body": "Activity 的核心是区分“暂时不可见”和“不再存在”。隐藏可以保留状态，卸载会释放子树。路由、tab、预渲染页面需要明确选择。"
+        },
+        {
+          "title": "Effect 暂停",
+          "body": "Activity hidden 不只是 CSS 隐藏，它还影响子树 effect 和更新优先级。适合需要保留状态但降低后台成本的 UI。"
+        }
+      ]
     },
     {
-      "title": "2. useEffectEvent 解决 effect 依赖撕扯",
-      "body": "有些 effect 需要在 roomId 变化时重连，但连接成功后的通知文案要读取最新 theme。把通知逻辑放进 Effect Event，可以避免 theme 变化导致重连。"
+      "title": "Effect 结构",
+      "items": [
+        {
+          "title": "Effect 事件",
+          "body": "useEffectEvent 解决的是 effect 内部非响应式逻辑读取最新值的问题。它不是普通事件处理器，也不是绕过依赖数组的万能工具。"
+        },
+        {
+          "title": "重连边界",
+          "body": "聊天室例子中 roomId 变化才应该重连，theme 变化只影响通知样式。Effect Event 让这两种变化分开表达。"
+        }
+      ]
     },
     {
-      "title": "3. 性能轨道帮助区分问题归因",
-      "body": "用户觉得卡，原因可能是 React 渲染多、提交慢、浏览器布局重、网络慢或脚本阻塞。React Performance Tracks 让 React 工作在性能面板中更可见。"
+      "title": "框架能力",
+      "items": [
+        {
+          "title": "缓存生命周期",
+          "body": "cacheSignal 让服务端缓存结果不再被使用时可以取消异步工作。它更偏框架和数据层，但能帮助理解 Server Components 的资源管理。"
+        },
+        {
+          "title": "预渲染和恢复",
+          "body": "prerender/resume 把静态 shell 和动态恢复拆开。它面向高级 SSR 架构，目标是在保持动态能力的同时提高首屏交付效率。"
+        },
+        {
+          "title": "性能归因",
+          "body": "React Performance Tracks 让调度、渲染、提交等 React 工作在性能面板中可见。优化前先定位是 React、浏览器布局、脚本还是网络导致慢。"
+        }
+      ]
     }
   ],
-  "code": "function ProfileRoute({ isActive }) {\n  return (\n    <Activity mode={isActive ? 'visible' : 'hidden'}>\n      <ProfilePage />\n    </Activity>\n  );\n}\n\nfunction ChatRoom({ roomId, theme }) {\n  const onConnected = useEffectEvent(() => {\n    showNotification('Connected', theme);\n  });\n\n  useEffect(() => {\n    const connection = createConnection(roomId);\n    connection.on('connected', onConnected);\n    connection.connect();\n\n    return () => connection.disconnect();\n  }, [roomId]);\n}",
+  "code": "import React, { Activity, useEffect, useEffectEvent, useState } from 'react';\nimport { cacheSignal } from 'react';\nimport { prerender, resume } from 'react-dom/static';\n\nfunction ChatRoom({ roomId, muted }) {\n  const [messages, setMessages] = useState([]);\n\n  const onMessage = useEffectEvent((message) => {\n    // useEffectEvent 读取最新 props/state，但不会让外层 effect 因 muted 改变而重连。\n    if (!muted) playSound('message');\n    setMessages((current) => [...current, message]);\n  });\n\n  useEffect(() => {\n    const connection = createConnection(roomId);\n    connection.on('message', onMessage);\n    connection.connect();\n    return () => connection.disconnect();\n  }, [roomId, onMessage]);\n\n  return messages.map((message) => <p key={message.id}>{message.text}</p>);\n}\n\nfunction Inbox({ activeRoom }) {\n  return (\n    <>\n      {/* Activity 可以隐藏但保留子树状态，适合标签页、侧栏和预加载界面。 */}\n      <Activity mode={activeRoom === 'team' ? 'visible' : 'hidden'}>\n        <ChatRoom roomId=\"team\" muted={false} />\n      </Activity>\n      <Activity mode={activeRoom === 'dm' ? 'visible' : 'hidden'}>\n        <ChatRoom roomId=\"dm\" muted />\n      </Activity>\n    </>\n  );\n}\n\nasync function loadProducts() {\n  const signal = cacheSignal();\n  // cacheSignal 把缓存生命周期和异步请求关联起来，缓存失效时可中止请求。\n  const response = await fetch('/api/products', { signal });\n  return response.json();\n}\n\nasync function buildStaticPage() {\n  // prerender 先生成可恢复的静态输出，resume 在请求或客户端阶段继续同一棵树。\n  const prerendered = await prerender(<Inbox activeRoom=\"team\" />);\n  return resume(<Inbox activeRoom=\"team\" />, prerendered);\n}\n\n// React Performance Tracks 会在性能面板中标注 React 工作，帮助定位渲染与数据等待。",
   "checklist": [
     "Activity hidden 保留子树状态，和直接卸载不同。",
     "useEffectEvent 用于 effect 内的非响应式逻辑，避免不必要的 effect 重跑。",

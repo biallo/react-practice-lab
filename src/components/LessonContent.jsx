@@ -1,13 +1,21 @@
+import { CodeBlock } from './CodeBlock.jsx';
 import { FeatureList } from './FeatureList.jsx';
 
 function DetailList({ items }) {
   return (
     <div className="detail-list">
-      {items.map((item) => (
-        <article className="detail-item" key={item.title}>
-          <h3>{item.title}</h3>
-          <p>{item.body}</p>
-        </article>
+      {items.map((group) => (
+        <section className="detail-group" key={group.title}>
+          <h3>{group.title}</h3>
+          <div className="detail-group-list">
+            {group.items.map((item) => (
+              <article className="detail-item" key={item.title}>
+                <h4>{item.title}</h4>
+                <p>{item.body}</p>
+              </article>
+            ))}
+          </div>
+        </section>
       ))}
     </div>
   );
@@ -71,9 +79,7 @@ export function LessonContent({
           <span>Code</span>
           <h2>代码示例</h2>
         </div>
-        <pre className="code-block">
-          <code>{lesson.code}</code>
-        </pre>
+        <CodeBlock code={lesson.code} />
       </article>
     </section>
   );

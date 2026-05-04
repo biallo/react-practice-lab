@@ -8,20 +8,43 @@ export const lesson = {
   "whyItMatters": "React 0.14 把“描述 UI”和“渲染到浏览器”拆成两层：react 负责组件、元素和组合模型，react-dom 负责把这棵元素树挂载、更新或卸载到浏览器 DOM。这个边界让同一套组件模型可以被不同渲染目标复用：Web 使用 react-dom，服务端使用 react-dom/server，移动端可以使用 React Native，测试也可以使用专门的 renderer。后续的 createRoot、hydrateRoot、Server Components 本质上都延续了这个分层思路。",
   "deepDive": [
     {
-      "title": "1. React 元素不是 DOM 节点",
-      "body": "JSX 最终描述的是 React element，它只是一个轻量对象，表达“我要渲染什么”。DOM 节点是浏览器里的真实对象。React 核心可以创建 element、组合组件、比较树结构，但它并不天然知道浏览器 DOM 应该怎么创建、怎么插入、怎么监听事件。把 element 变成 DOM，是 react-dom 的工作。"
+      "title": "基础模型",
+      "items": [
+        {
+          "title": "包边界",
+          "body": "react 负责创建元素、定义组件、处理 children 等平台无关能力；react-dom 负责浏览器容器、DOM 节点、事件系统和卸载；react-dom/server 负责把同一棵元素树输出为 HTML。"
+        },
+        {
+          "title": "元素和节点",
+          "body": "React element 是普通对象，描述将要出现的 UI；DOM node 是浏览器中的真实节点。理解这一区别后，render、hydrate、server render 的边界都会更清楚。"
+        }
+      ]
     },
     {
-      "title": "2. 拆包背后的架构边界",
-      "body": "0.14 之前，很多 DOM 能力挂在 React 对象上。拆成 react 和 react-dom 后，React.Component、React.createElement、React.Children 这类组件模型能力留在 react；ReactDOM.render、findDOMNode、unmountComponentAtNode 这类和浏览器容器有关的能力进入 react-dom。这个边界让 React 可以服务多个平台。"
+      "title": "组件表达",
+      "items": [
+        {
+          "title": "函数组件的早期定位",
+          "body": "0.14 的函数组件主要用于纯展示场景：接收 props，返回元素，没有 state、生命周期和实例。它不是 Hooks 时代函数组件的完整能力形态。"
+        },
+        {
+          "title": "组件就是 props 到 UI 的映射",
+          "body": "无状态函数组件把简单组件保持为简单函数，避免为了展示数据而引入 class 实例、this 和生命周期。"
+        }
+      ]
     },
     {
-      "title": "3. 函数组件的意义不只是少写代码",
-      "body": "无状态函数组件把“组件就是 props 到 UI 的映射”这件事表达得更直接。它没有实例、没有 this、没有生命周期，所以更适合展示型组件。后来 Hooks 出现后，函数组件才获得状态与副作用能力；但最早的函数组件价值，是让简单组件保持简单。"
-    },
-    {
-      "title": "4. ref 是命令式逃生口",
-      "body": "React 主张通过 state 和 props 声明 UI，但焦点、选区、测量尺寸、第三方 DOM 库等场景仍需要直接访问底层节点。0.14 调整了 DOM ref 行为，并用 ReactDOM.findDOMNode 替代 getDOMNode。今天你仍应优先使用明确的 ref，而不是依赖 findDOMNode 去穿透组件。"
+      "title": "实践边界",
+      "items": [
+        {
+          "title": "命令式访问的代价",
+          "body": "findDOMNode 能拿到底层 DOM，但会穿透组件封装。现代 React 更鼓励通过 ref 显式暴露需要访问的节点，避免父组件依赖子组件内部结构。"
+        },
+        {
+          "title": "渲染器入口判断",
+          "body": "当 API 需要浏览器容器、DOM 节点或 HTML 字符串时，它通常属于渲染器；当 API 只描述组件和元素时，它通常属于 React 核心。"
+        }
+      ]
     }
   ],
   "features": [
@@ -51,7 +74,7 @@ export const lesson = {
       "note": "把 React element 树渲染为 HTML 字符串。这个包名也体现了同一套组件树可以被不同目标消费：浏览器 DOM、服务端 HTML、测试 renderer 等。"
     }
   ],
-  "code": "import React from 'react';\nimport ReactDOM from 'react-dom';\nimport ReactDOMServer from 'react-dom/server';\n\n// React 核心：描述组件和元素，不直接操作浏览器 DOM。\nfunction ProductCard({ product }) {\n  return (\n    <article className=\"product-card\">\n      <h2>{product.name}</h2>\n      <p>{product.description}</p>\n    </article>\n  );\n}\n\nconst element = (\n  <ProductCard\n    product={{\n      name: 'React 0.14',\n      description: 'React core describes UI. React DOM renders it.'\n    }}\n  />\n);\n\n// react-dom：把 element 渲染到浏览器 DOM 容器。\nReactDOM.render(element, document.getElementById('root'));\n\n// react-dom/server：把同一棵 element 树渲染成 HTML 字符串。\nconst html = ReactDOMServer.renderToString(element);\nconsole.log(html);",
+  "code": "import React from 'react';\nimport ReactDOM from 'react-dom';\nimport ReactDOMServer from 'react-dom/server';\n\nfunction ProductCard({ product }) {\n  // React 0.14 之后，组件只要接收 props 并返回元素，就可以写成函数组件。\n  return (\n    <article className=\"product-card\">\n      <h2>{product.name}</h2>\n      <p>{product.price}</p>\n    </article>\n  );\n}\n\nconst element = <ProductCard product={{ name: 'React Guide', price: '$19' }} />;\n\n// react-dom 负责浏览器渲染：把 React element 挂载到真实 DOM 容器。\nReactDOM.render(element, document.getElementById('root'));\n\nclass LegacyFocusBox extends React.Component {\n  componentDidMount() {\n    // findDOMNode 是 React 0.14 暴露在 react-dom 中的旧式逃生口。\n    // 现代代码应优先使用 ref，这里只用于理解历史 API。\n    const node = ReactDOM.findDOMNode(this);\n    node.querySelector('input').focus();\n  }\n\n  render() {\n    return <label>Search <input /></label>;\n  }\n}\n\n// react-dom/server 负责服务端渲染：把同一个 element 输出为 HTML 字符串。\nconst html = ReactDOMServer.renderToString(element);",
   "checklist": [
     "react、react-dom、react-dom/server 三者的职责边界清晰。",
     "ReactDOM.render 属于浏览器 DOM 渲染器，而不是 React 核心包。",

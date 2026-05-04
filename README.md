@@ -1,6 +1,6 @@
 # React Practice Lab
 
-一个按版本时间线学习 React.js 的项目。
+梳理各版本 React.js 的重点方法和特性。
 
 ## 在线预览
 

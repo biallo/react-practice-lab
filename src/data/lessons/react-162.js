@@ -30,19 +30,46 @@ export const lesson = {
   ],
   "deepDive": [
     {
-      "title": "1. Fragment 是组件边界，不是 DOM 边界",
-      "body": "Fragment 让组件可以返回一个逻辑整体，但浏览器看不到这个整体。调试时如果找不到 Fragment 对应节点，这是正确结果。它存在于 React element 树中，不存在于最终 DOM 树中。"
+      "title": "结构语义",
+      "items": [
+        {
+          "title": "语义 HTML",
+          "body": "不是所有地方都能随便加 div。table、dl、ul、select 等结构对直接子节点有语义要求，Fragment 能让组件拆分不破坏这些结构。"
+        },
+        {
+          "title": "布局副作用",
+          "body": "无意义包裹节点可能影响 flex/grid、CSS 选择器、间距和无障碍语义。Fragment 的价值经常体现在这些细节里。"
+        }
+      ]
     },
     {
-      "title": "2. 语义 HTML 场景最能体现价值",
-      "body": "在 dl 中一组 dt/dd、在 table 中一组 tr、在 ul 中多个 li，都不适合随便插 div。Fragment 让组件拆分不必牺牲 HTML 语义。"
+      "title": "Fragment 模型",
+      "items": [
+        {
+          "title": "虚拟分组",
+          "body": "Fragment 是 React 层面的分组，不是 DOM 层面的容器。它让组件返回一个逻辑整体，但最终不会生成真实节点。"
+        },
+        {
+          "title": "短语法和完整写法",
+          "body": "<></> 适合无属性分组；需要 key 的列表场景必须使用 <React.Fragment key={...}>。"
+        }
+      ]
     },
     {
-      "title": "3. key 不是给 DOM 的，是给 React 的",
-      "body": "带 key 的 Fragment 不会生成 DOM 属性。key 只帮助 React 在更新列表时识别哪一组子节点属于同一个数据项。"
+      "title": "列表身份",
+      "items": [
+        {
+          "title": "key 的归属",
+          "body": "列表中的 key 属于 React 识别元素身份的机制，不是 DOM 属性。带 key 的 Fragment 用完整写法，短语法不支持 key。"
+        },
+        {
+          "title": "分组项的身份",
+          "body": "当一个数据项对应多个兄弟节点时，key 应该放在包住这一组节点的 Fragment 上，而不是随便放在其中某一个子节点上。"
+        }
+      ]
     }
   ],
-  "code": "function Glossary({ items }) {\n  return (\n    <dl>\n      {items.map((item) => (\n        <React.Fragment key={item.id}>\n          <dt>{item.term}</dt>\n          <dd>{item.description}</dd>\n        </React.Fragment>\n      ))}\n    </dl>\n  );\n}\n\nfunction Toolbar() {\n  return (\n    <>\n      <button>Save</button>\n      <button>Cancel</button>\n    </>\n  );\n}",
+  "code": "import React from 'react';\n\nfunction DescriptionList({ rows }) {\n  return (\n    <dl>\n      {rows.map((row) => (\n        // 显式 React.Fragment 可以携带 key，适合 map 中返回多个同级节点。\n        <React.Fragment key={row.term}>\n          <dt>{row.term}</dt>\n          <dd>{row.description}</dd>\n        </React.Fragment>\n      ))}\n    </dl>\n  );\n}\n\nfunction FieldGroup() {\n  // 短语法 <>...</> 适合不需要 key 的普通分组，不会额外生成 DOM 节点。\n  return (\n    <>\n      <label htmlFor=\"email\">Email</label>\n      <input id=\"email\" />\n    </>\n  );\n}\n\nfunction LegacyPair() {\n  // Fragment 普及前，也可以返回数组；缺点是需要手动维护 key，阅读性较弱。\n  return [\n    <label key=\"label\" htmlFor=\"name\">Name</label>,\n    <input key=\"input\" id=\"name\" />,\n  ];\n}",
   "checklist": [
     "Fragment 不会生成真实 DOM 节点。",
     "短语法适合无属性分组，完整写法适合需要 key 的分组。",

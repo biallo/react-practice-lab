@@ -30,19 +30,46 @@ export const lesson = {
   ],
   "deepDive": [
     {
-      "title": "1. Context 适合稳定的跨层依赖",
-      "body": "Context 不是状态管理库的完整替代品。它适合 theme、locale、当前用户、权限等很多组件都需要读取的数据。频繁变化且影响大量节点的 value 需要谨慎设计，否则会造成大范围重新渲染。"
+      "title": "跨层数据",
+      "items": [
+        {
+          "title": "Context 的适用面",
+          "body": "Context 适合 theme、locale、auth、feature flag 这类很多组件都要读取的环境数据。它减少 props drilling，但不等于所有状态都应该进 Context。"
+        },
+        {
+          "title": "更新范围",
+          "body": "Context value 变化会影响读取它的组件。频繁变化的数据需要谨慎拆分 Provider，避免让大量不相关组件一起重新渲染。"
+        }
+      ]
     },
     {
-      "title": "2. ref 是显式暴露命令式能力",
-      "body": "React 的主路径是声明式数据流，但输入框 focus、滚动定位、测量尺寸无法完全用 props 表达。ref 的价值是把这些命令式需求限制在明确的位置，而不是到处 querySelector。"
+      "title": "命令式能力",
+      "items": [
+        {
+          "title": "ref 生命周期",
+          "body": "对象 ref 的 current 在挂载后指向 DOM 或实例，卸载时会被清空。访问 ref 时要考虑节点是否已经存在。"
+        },
+        {
+          "title": "组件库封装",
+          "body": "forwardRef 让 Button、Input 这类封装组件既能隐藏内部结构，又能把必要的焦点和测量能力暴露给调用方。"
+        }
+      ]
     },
     {
-      "title": "3. forwardRef 是组件库质量分水岭",
-      "body": "一个封装后的 Input 如果不能被父组件 focus，就很难替代原生 input。forwardRef 让组件保持封装，同时把必要的底层节点暴露给调用方。"
+      "title": "迁移安全",
+      "items": [
+        {
+          "title": "生命周期安全",
+          "body": "旧生命周期在异步和可中断渲染下容易产生不安全副作用。16.3 的新生命周期和 UNSAFE_ 前缀是在为未来渲染模型迁移。"
+        },
+        {
+          "title": "不要滥用派生状态",
+          "body": "getDerivedStateFromProps 适合少数从 props 同步状态的场景。多数情况下，直接从 props 渲染或提升状态会更简单。"
+        }
+      ]
     }
   ],
-  "code": "const ThemeContext = React.createContext('light');\n\nconst TextInput = React.forwardRef(function TextInput(props, ref) {\n  return <input ref={ref} className=\"text-input\" {...props} />;\n});\n\nclass ProfileForm extends React.Component {\n  inputRef = React.createRef();\n\n  componentDidMount() {\n    this.inputRef.current.focus();\n  }\n\n  render() {\n    return (\n      <ThemeContext.Consumer>\n        {(theme) => (\n          <section data-theme={theme}>\n            <TextInput ref={this.inputRef} placeholder=\"Name\" />\n          </section>\n        )}\n      </ThemeContext.Consumer>\n    );\n  }\n}",
+  "code": "import React from 'react';\n\nconst ThemeContext = React.createContext('light');\n\nclass Toolbar extends React.Component {\n  static contextType = ThemeContext;\n\n  render() {\n    // 新 Context API 让跨层级数据读取更明确，不再依赖旧 contextTypes。\n    return <button className={this.context}>Save</button>;\n  }\n}\n\nclass SearchBox extends React.Component {\n  inputRef = React.createRef();\n\n  componentDidMount() {\n    // createRef 为 class 组件提供稳定的 DOM 或组件实例引用。\n    this.inputRef.current.focus();\n  }\n\n  render() {\n    return <input ref={this.inputRef} placeholder=\"Search\" />;\n  }\n}\n\nconst FancyInput = React.forwardRef(function FancyInput(props, ref) {\n  // forwardRef 把父组件传入的 ref 转发到内部 DOM 节点。\n  return <input ref={ref} className=\"fancy-input\" {...props} />;\n});\n\nclass ScrollingList extends React.Component {\n  listRef = React.createRef();\n\n  static getDerivedStateFromProps(nextProps, prevState) {\n    // 用 getDerivedStateFromProps 替代部分 componentWillReceiveProps 场景。\n    return nextProps.filter !== prevState.filter ? { filter: nextProps.filter } : null;\n  }\n\n  getSnapshotBeforeUpdate(prevProps) {\n    // getSnapshotBeforeUpdate 在 DOM 更新前读取快照，返回值会传给 componentDidUpdate。\n    if (prevProps.items.length < this.props.items.length) {\n      const list = this.listRef.current;\n      return list.scrollHeight - list.scrollTop;\n    }\n    return null;\n  }\n\n  componentDidUpdate(prevProps, prevState, snapshot) {\n    if (snapshot !== null) {\n      this.listRef.current.scrollTop = this.listRef.current.scrollHeight - snapshot;\n    }\n  }\n\n  render() {\n    return <ul ref={this.listRef}>{this.props.items.map((item) => <li key={item.id}>{item.name}</li>)}</ul>;\n  }\n}",
   "checklist": [
     "Context 的 Provider / Consumer 数据流清晰。",
     "createRef.current 在挂载、更新和卸载时的含义明确。",

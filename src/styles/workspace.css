@@ -166,6 +166,25 @@
 
 .detail-list {
   display: grid;
+  gap: 16px;
+}
+
+.detail-group {
+  display: grid;
+  gap: 12px;
+}
+
+.detail-group > h3 {
+  margin: 0;
+  border-left: 4px solid #b9472f;
+  color: #18212f;
+  font-size: 17px;
+  line-height: 1.35;
+  padding-left: 12px;
+}
+
+.detail-group-list {
+  display: grid;
   gap: 12px;
 }
 
@@ -176,7 +195,7 @@
   padding: 16px;
 }
 
-.detail-item h3 {
+.detail-item h4 {
   margin: 0 0 8px;
   color: #18212f;
   font-size: 16px;
@@ -191,18 +210,45 @@
   max-width: 100%;
   overflow: auto;
   -webkit-overflow-scrolling: touch;
-  border: 1px solid #263344;
+  border: 1px solid #223147;
   border-radius: 8px;
-  background: #101828;
-  color: #edf4ff;
+  background: #0f172a;
+  color: #d8e2f0;
   padding: 16px;
   font-size: 14px;
   line-height: 1.65;
+  tab-size: 2;
 }
 
 .code-block code {
   font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
   white-space: pre;
+}
+
+.code-token.comment {
+  color: #8aa0b8;
+  font-style: italic;
+}
+
+.code-token.string {
+  color: #a7f3d0;
+}
+
+.code-token.keyword {
+  color: #93c5fd;
+  font-weight: 750;
+}
+
+.code-token.tag {
+  color: #f0abfc;
+}
+
+.code-token.symbol {
+  color: #fcd34d;
+}
+
+.code-token.number {
+  color: #fca5a5;
 }
 
 .checklist {
