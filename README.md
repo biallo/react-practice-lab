@@ -1,6 +1,6 @@
 # React Practice Lab
 
-梳理各版本 React.js 的重点方法和特性。
+一个 React.js 的学习项目。
 
 ## 在线预览
 
@@ -11,4 +11,10 @@
 ```bash
 npm install
 npm run dev
+```
+
+## 编译和构建
+
+```shell
+npm run build
 ```
