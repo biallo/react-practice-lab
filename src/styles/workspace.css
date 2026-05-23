@@ -222,7 +222,7 @@
 
 .code-block code {
   font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
-  white-space: pre;
+  white-space: pre-wrap;
 }
 
 .code-token.comment {
