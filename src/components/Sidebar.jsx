@@ -109,7 +109,11 @@ export function Sidebar({ activeLesson, completedCount, onLessonSelect, progress
                 <small>{lesson.date} · {lesson.era}</small>
                 <span>{lesson.title}</span>
               </span>
-              <span className="lesson-status">{isCompleted ? '已完成' : '未完成'}</span>
+              {
+                isCompleted
+                  ? <span className="lesson-status">✓</span>
+                  : ''
+              }
             </button>
           );
         })}
